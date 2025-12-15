@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航班管理系统 - 导航页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 顶部导航栏 */
+        .header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        /* 核心导航容器 */
+        .nav-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        /* 导航卡片样式 */
+        .nav-card {
+            width: 280px;
+            height: 220px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: #333;
+        }
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            background-color: #f0f8fb;
+        }
+        .nav-card i {
+            font-size: 48px;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+        .nav-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .nav-card p {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        /* 底部信息 */
+        .footer {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 14px;
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .nav-container {
+                gap: 20px;
+                padding: 20px 10px;
+            }
+            .nav-card {
+                width: 90%;
+                max-width: 300px;
+            }
+        }
+    </style>
+    <!-- 引入图标库（可选，增强视觉） -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 顶部标题栏 -->
+    <div class="header">
+        <h1>航班管理系统</h1>
+    </div>
+
+    <!-- 核心导航区域 -->
+    <div class="nav-container">
+        <!-- 导航1：航班信息热力图一 -->
+        <a href="flight_info.html" class="nav-card">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <h2>航班信息热力图一</h2>
+            <p>查看航班实时分布、流量热力可视化</p>
+        </a>
+
+        <!-- 导航2：航班信息热力图二 -->
+        <a href="flight_info_new.html" class="nav-card">
+            <i class="fa-solid fa-temperature-three-quarters"></i>
+            <h2>航班信息热力图二</h2>
+            <p>分析航班延误、运力负载热力分布</p>
+        </a>
+
+        <!-- 导航3：排班管理 -->
+        <a href="job_info.html" class="nav-card">
+            <i class="fa-solid fa-calendar-check"></i>
+            <h2>排班管理</h2>
+            <p>航班机组排班、航线调整、任务分配</p>
+        </a>
+    </div>
+
+    <!-- 底部版权信息 -->
+    <div class="footer">
+        航班管理系统 © 2025 版权所有
+    </div>
+</body>
+</html>
