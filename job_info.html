@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工排班管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 25px 30px;
+            border-bottom: 1px solid #e1e5eb;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        h1 i {
+            margin-right: 15px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+        
+        .content-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .sidebar {
+            flex: 0 0 350px;
+            background-color: #f8fafc;
+            padding: 25px;
+            border-right: 1px solid #e1e5eb;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            min-width: 300px;
+            max-width: calc(100vw - 350px - 50px);
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #4b6cb7;
+        }
+        
+        .employee-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .employee-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #4b6cb7;
+            transition: all 0.3s ease;
+        }
+        
+        .employee-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .employee-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #4b6cb7;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+        
+        .employee-info {
+            flex: 1;
+        }
+        
+        .employee-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .employee-hours {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .time-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background-color: #4b6cb7;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a5ca9;
+        }
+        
+        .btn-secondary {
+            background-color: #e9edf5;
+            color: #4b6cb7;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #dce1ee;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .current-date {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 200px;
+        }
+        
+        .schedule-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e1e5eb;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        .schedule-table th {
+            background-color: #f1f5f9;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+            border: 1px solid #e1e5eb;
+            min-width: 120px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .schedule-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border: 1px solid #e1e5eb;
+            transition: background-color 0.2s;
+            min-width: 120px;
+            height: 60px;
+        }
+        
+        .employee-cell {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: left;
+            padding-left: 20px;
+            width: 150px;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+        
+        .time-slot {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .time-slot:hover {
+            background-color: #f0f7ff;
+        }
+        
+        /* 更醒目的单人/双人排班颜色 */
+        .assigned {
+            background-color: #d6e4ff !important; /* 更亮的蓝色 */
+            border: 2px solid #2d5fd6 !important; /* 更深的蓝色边框 */
+            border-radius: 6px;
+        }
+        
+        .assigned.double {
+            background-color: #a8c6ff !important; /* 更亮的双人蓝色 */
+            border: 2px solid #1a4fd6 !important; /* 更深的双人蓝色边框 */
+            box-shadow: 0 2px 4px rgba(26, 79, 214, 0.2); /* 添加阴影增强效果 */
+        }
+        
+        .tooltip-container {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .tooltip {
+            background-color: #2c3e50;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            max-width: 250px;
+            position: relative;
+        }
+        
+        .tooltip.right {
+            margin-left: 10px;
+        }
+        
+        .tooltip.left {
+            margin-right: 10px;
+        }
+        
+        .tooltip-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        
+        .tooltip.right .tooltip-arrow {
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 6px 6px 6px 0;
+            border-color: transparent #2c3e50 transparent transparent;
+        }
+        
+        .tooltip.left .tooltip-arrow {
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 6px 0 6px 6px;
+            border-color: transparent transparent transparent #2c3e50;
+        }
+        
+        .tooltip-item {
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .tooltip-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .tooltip-label {
+            color: #a0aec0;
+            margin-right: 10px;
+        }
+        
+        .tooltip-value {
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        /* 更醒目的超时警告 */
+        .warning {
+            background-color: #ffcccc !important; /* 更亮的红色 */
+            border-color: #ff3333 !important; /* 更深的红色边框 */
+            box-shadow: 0 2px 4px rgba(255, 51, 51, 0.2); /* 添加阴影增强效果 */
+        }
+        
+        .warning-icon {
+            color: #ff3333; /* 更深的红色 */
+            margin-left: 5px;
+        }
+        
+        /* 周工作时长统计 - 新样式 */
+        .weekly-stats-section {
+            margin-top: 20px;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #4b6cb7;
+        }
+        
+        .weekly-stats-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .weekly-stats-title i {
+            margin-right: 10px;
+            color: #4b6cb7;
+        }
+        
+        .weekly-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .weekly-stat-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5eb;
+            transition: transform 0.2s;
+        }
+        
+        .weekly-stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-employee-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .stat-hours {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #555;
+        }
+        
+        .stat-hours-value {
+            font-weight: 600;
+            color: #4b6cb7;
+        }
+        
+        .stat-limit {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+        
+        .stat-status {
+            font-size: 13px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .stat-status.normal {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .stat-status.under {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .stat-status.over {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .legend {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            padding: 4px 8px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #e1e5eb;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        /* 新定义的醒目颜色 */
+        .legend-single {
+            background-color: #d6e4ff;
+            border: 1px solid #2d5fd6;
+        }
+        
+        .legend-double {
+            background-color: #a8c6ff;
+            border: 1px solid #1a4fd6;
+        }
+        
+        .legend-warning {
+            background-color: #ffcccc;
+            border: 1px solid #ff3333;
+        }
+        
+        .slot-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .employee-count {
+            font-weight: bold;
+            font-size: 14px;
+            color: #2d5fd6; /* 更深的蓝色 */
+        }
+        
+        .assigned-employee-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #2d5fd6; /* 更深的蓝色 */
+            margin-bottom: 2px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #e1e5eb;
+            margin-top: 30px;
+        }
+        
+        /* 员工管理样式 */
+        .employee-management {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .employee-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .employee-controls h3 {
+            font-size: 16px;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .employee-table-container {
+            overflow-x: auto;
+            border: 1px solid #e1e5eb;
+            border-radius: 8px;
+        }
+        
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+        
+        .employee-table th {
+            background-color: #f1f5f9;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e1e5eb;
+        }
+        
+        .employee-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e1e5eb;
+        }
+        
+        .employee-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .employee-table tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .employee-table input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d1d9e6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        .employee-table input:focus {
+            border-color: #4b6cb7;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 108, 183, 0.2);
+        }
+        
+        .employee-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .json-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .json-actions .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .json-example {
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #4a5568;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .json-example h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons .btn {
+            width: 100%;
+        }
+        
+        @media (max-width: 1200px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                flex: 1;
+                border-right: none;
+                border-bottom: 1px solid #e1e5eb;
+                max-height: none;
+            }
+            
+            .main-content {
+                max-width: 100%;
+            }
+            
+            .weekly-stats-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .time-config {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-selector {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            .sidebar, .main-content {
+                padding: 15px;
+            }
+            
+            .tooltip {
+                min-width: 160px;
+                max-width: 200px;
+            }
+            
+            .json-actions {
+                flex-direction: column;
+            }
+            
+            .json-actions .btn {
+                width: 100%;
+            }
+            
+            .employee-table {
+                min-width: 400px;
+            }
+            
+            .employee-actions {
+                flex-direction: column;
+            }
+            
+            .employee-actions .btn {
+                width: 100%;
+            }
+            
+            .weekly-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calendar-alt"></i> 员工排班管理系统</h1>
+            <p class="subtitle">灵活配置员工工作时间，智能监控工作时长限制</p>
+        </header>
+        
+        <div class="content-wrapper">
+            <!-- 左侧边栏：员工列表和配置 -->
+            <div class="sidebar">
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-users"></i> 员工列表</h3>
+                    <div class="employee-list" id="employeeList">
+                        <!-- 员工列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-cog"></i> 工作时间配置</h3>
+                    <div class="time-config">
+                        <div class="form-group">
+                            <label for="startTime">每日开始时间</label>
+                            <input type="time" id="startTime" value="04:30">
+                        </div>
+                        <div class="form-group">
+                            <label for="endTime">每日结束时间</label>
+                            <input type="time" id="endTime" value="18:30">
+                        </div>
+                        <div class="form-group">
+                            <label for="interval">时间段间隔（分钟）</label>
+                            <select id="interval">
+                                <option value="30">30分钟</option>
+                                <option value="60" selected>60分钟</option>
+                                <option value="90">90分钟</option>
+                                <option value="120">120分钟</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="applyConfig" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-sync-alt"></i> 应用配置
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 主内容区域：排班表和员工管理 -->
+            <div class="main-content">
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-calendar-week"></i> 排班表</h3>
+                    
+                    <div class="date-selector">
+                        <div class="date-nav">
+                            <button class="btn btn-secondary" id="prevDay">
+                                <i class="fas fa-chevron-left"></i> 前一天
+                            </button>
+                            <input type="date" id="datePicker" class="btn-secondary" style="padding: 8px 12px;">
+                            <button class="btn btn-secondary" id="nextDay">
+                                后一天 <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <div class="current-date" id="currentDate">2023年10月26日 星期四</div>
+                        </div>
+                        
+                        <div class="legend">
+                            <div class="legend-item legend-single">
+                                <div class="legend-color" style="background-color: #d6e4ff;"></div>
+                                <span>单员工在岗</span>
+                            </div>
+                            <div class="legend-item legend-double">
+                                <div class="legend-color" style="background-color: #a8c6ff;"></div>
+                                <span>双员工在岗</span>
+                            </div>
+                            <div class="legend-item legend-warning">
+                                <div class="legend-color" style="background-color: #ffcccc;"></div>
+                                <span>超时警告</span>
+                            </div>
+                            <button class="btn btn-primary" id="clearSchedule">
+                                <i class="fas fa-broom"></i> 清除今日排班
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-container">
+                        <table class="schedule-table" id="scheduleTable">
+                            <!-- 排班表将通过JavaScript动态生成 -->
+                        </table>
+                    </div>
+                    
+                    <div class="legend">
+                        <div class="legend-item">
+                            <i class="fas fa-info-circle" style="color: #4b6cb7;"></i>
+                            <span>点击单元格安排/取消员工，同一时段最多安排2人</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 周工作时长统计 - 移到排班表下方 -->
+                    <div class="weekly-stats-section">
+                        <div class="weekly-stats-title">
+                            <i class="fas fa-chart-bar"></i> 本周工作时长统计
+                        </div>
+                        <div class="weekly-stats-grid" id="weeklyStatsGrid">
+                            <!-- 每周统计数据将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="employee-management">
+                        <div class="section-title">
+                            <span><i class="fas fa-user-edit"></i> 员工管理</span>
+                        </div>
+                        
+                        <div class="employee-controls">
+                            <h3>员工时长限制设置</h3>
+                            <button class="btn btn-success btn-sm" id="addEmployee">
+                                <i class="fas fa-plus"></i> 添加员工
+                            </button>
+                        </div>
+                        
+                        <div class="employee-table-container">
+                            <table class="employee-table" id="employeeTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30%;">姓名</th>
+                                        <th style="width: 25%;">最少时长(小时)</th>
+                                        <th style="width: 25%;">最多时长(小时)</th>
+                                        <th style="width: 20%;">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeeTableBody">
+                                    <!-- 员工表格将通过JavaScript动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="json-actions">
+                            <button class="btn btn-success" id="importJson">
+                                <i class="fas fa-file-import"></i> 导入JSON
+                            </button>
+                            <button class="btn btn-secondary" id="exportJson">
+                                <i class="fas fa-file-export"></i> 导出JSON
+                            </button>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" id="updateLimits">
+                                <i class="fas fa-save"></i> 保存员工设置
+                            </button>
+                        </div>
+                        
+                        <div class="json-example">
+                            <h4>JSON文件格式示例：</h4>
+                            <pre id="jsonExample">
+{
+  "employees": [
+    {"name": "张三", "minHours": 30, "maxHours": 40},
+    {"name": "李四", "minHours": 28, "maxHours": 38},
+    {"name": "王五", "minHours": 32, "maxHours": 42},
+    {"name": "赵六", "minHours": 30, "maxHours": 40},
+    {"name": "孙七", "minHours": 25, "maxHours": 35},
+    {"name": "周八", "minHours": 28, "maxHours": 38},
+    {"name": "吴九", "minHours": 30, "maxHours": 40}
+  ]
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>员工排班管理系统 © 2023 | 支持JSON数据导入导出，灵活配置员工工作时间限制</p>
+        </div>
+    </div>
+
+    <div id="globalTooltip" class="tooltip-container"></div>
+
+    <script>
+        // 员工数据 - 初始数据
+        let employees = [
+            { id: 1, name: "张三", minHours: 30, maxHours: 40, weeklyHours: 0, color: "#4b6cb7" },
+            { id: 2, name: "李四", minHours: 28, maxHours: 38, weeklyHours: 0, color: "#3498db" },
+            { id: 3, name: "王五", minHours: 32, maxHours: 42, weeklyHours: 0, color: "#2ecc71" },
+            { id: 4, name: "赵六", minHours: 30, maxHours: 40, weeklyHours: 0, color: "#9b59b6" },
+            { id: 5, name: "孙七", minHours: 25, maxHours: 35, weeklyHours: 0, color: "#e74c3c" },
+            { id: 6, name: "周八", minHours: 28, maxHours: 38, weeklyHours: 0, color: "#f39c12" },
+            { id: 7, name: "吴九", minHours: 30, maxHours: 40, weeklyHours: 0, color: "#1abc9c" }
+        ];
+
+        // 排班数据存储
+        let scheduleData = {};
+        let currentDate = new Date();
+        let currentTooltipContent = null;
+        let tooltipHideTimeout = null;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化员工列表
+            renderEmployeeList();
+            
+            // 初始化员工表格
+            renderEmployeeTable();
+            
+            // 初始化日期
+            updateDateDisplay();
+            
+            // 初始化排班表
+            generateScheduleTable();
+            
+            // 初始化周统计数据
+            updateWeeklyStats();
+            
+            // 绑定事件监听器
+            bindEvents();
+        });
+        
+        // 渲染员工列表（侧边栏）
+        function renderEmployeeList() {
+            const employeeList = document.getElementById('employeeList');
+            employeeList.innerHTML = '';
+            
+            employees.forEach(employee => {
+                const employeeElement = document.createElement('div');
+                employeeElement.className = 'employee-item';
+                employeeElement.innerHTML = `
+                    <div class="employee-avatar" style="background-color: ${employee.color}">
+                        ${employee.name.charAt(0)}
+                    </div>
+                    <div class="employee-info">
+                        <div class="employee-name">${employee.name}</div>
+                        <div class="employee-hours">本周累计: <span id="weeklyHours${employee.id}">${employee.weeklyHours}</span> 小时 | 限制: ${employee.minHours}-${employee.maxHours} 小时</div>
+                    </div>
+                `;
+                employeeList.appendChild(employeeElement);
+            });
+        }
+        
+        // 渲染员工表格（主内容区）
+        function renderEmployeeTable() {
+            const tbody = document.getElementById('employeeTableBody');
+            tbody.innerHTML = '';
+            
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <input type="text" class="employee-name" value="${employee.name}" data-id="${employee.id}" placeholder="员工姓名">
+                    </td>
+                    <td>
+                        <input type="number" class="employee-min" value="${employee.minHours}" min="0" max="60" data-id="${employee.id}" placeholder="最少时长">
+                    </td>
+                    <td>
+                        <input type="number" class="employee-max" value="${employee.maxHours}" min="0" max="80" data-id="${employee.id}" placeholder="最多时长">
+                    </td>
+                    <td>
+                        <div class="employee-actions">
+                            <button class="btn btn-danger btn-sm delete-employee" data-id="${employee.id}">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 添加新员工
+        function addNewEmployee() {
+            // 生成新ID
+            const newId = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+            
+            // 生成随机颜色
+            const colors = ["#4b6cb7", "#3498db", "#2ecc71", "#9b59b6", "#e74c3c", "#f39c12", "#1abc9c", "#34495e", "#16a085", "#8e44ad"];
+            const colorIndex = (newId - 1) % colors.length;
+            
+            // 添加新员工
+            const newEmployee = {
+                id: newId,
+                name: `员工${newId}`,
+                minHours: 30,
+                maxHours: 40,
+                weeklyHours: 0,
+                color: colors[colorIndex]
+            };
+            
+            employees.push(newEmployee);
+            
+            // 重新渲染表格和列表
+            renderEmployeeTable();
+            renderEmployeeList();
+            
+            // 重新生成排班表
+            generateScheduleTable();
+            
+            alert(`已添加新员工: ${newEmployee.name}`);
+        }
+        
+        // 删除员工
+        function deleteEmployee(employeeId) {
+            if (employees.length <= 1) {
+                alert('至少需要保留一名员工');
+                return;
+            }
+            
+            if (!confirm('确定要删除此员工吗？')) {
+                return;
+            }
+            
+            // 从员工列表中删除
+            employees = employees.filter(emp => emp.id !== employeeId);
+            
+            // 从排班数据中删除该员工的所有安排
+            Object.keys(scheduleData).forEach(slotKey => {
+                scheduleData[slotKey] = scheduleData[slotKey].filter(id => id !== employeeId);
+                if (scheduleData[slotKey].length === 0) {
+                    delete scheduleData[slotKey];
+                }
+            });
+            
+            // 重新渲染表格和列表
+            renderEmployeeTable();
+            renderEmployeeList();
+            
+            // 重新生成排班表
+            generateScheduleTable();
+            updateWeeklyStats();
+            
+            alert('员工已删除');
+        }
+        
+        // 更新员工限制
+        function updateEmployeeLimits() {
+            // 收集表格中的数据
+            const nameInputs = document.querySelectorAll('.employee-name');
+            const minInputs = document.querySelectorAll('.employee-min');
+            const maxInputs = document.querySelectorAll('.employee-max');
+            
+            // 验证数据
+            const newEmployees = [];
+            const errors = [];
+            
+            nameInputs.forEach((nameInput, index) => {
+                const id = parseInt(nameInput.getAttribute('data-id'));
+                const name = nameInput.value.trim();
+                const minHours = parseInt(minInputs[index].value) || 0;
+                const maxHours = parseInt(maxInputs[index].value) || 40;
+                
+                // 验证
+                if (!name) {
+                    errors.push(`第${index + 1}行员工姓名不能为空`);
+                    return;
+                }
+                
+                if (minHours < 0) {
+                    errors.push(`${name}的最少时长不能小于0`);
+                }
+                
+                if (maxHours < minHours) {
+                    errors.push(`${name}的最多时长不能小于最少时长`);
+                }
+                
+                // 查找原员工数据以保留颜色和累计时长
+                const originalEmployee = employees.find(emp => emp.id === id);
+                
+                newEmployees.push({
+                    id: id,
+                    name: name,
+                    minHours: minHours,
+                    maxHours: maxHours,
+                    weeklyHours: originalEmployee ? originalEmployee.weeklyHours : 0,
+                    color: originalEmployee ? originalEmployee.color : "#4b6cb7"
+                });
+            });
+            
+            // 如果有错误，显示错误
+            if (errors.length > 0) {
+                alert('请修正以下错误:\n\n' + errors.join('\n'));
+                return;
+            }
+            
+            // 更新员工数据
+            employees = newEmployees;
+            
+            // 更新员工列表显示
+            renderEmployeeList();
+            
+            // 更新周统计
+            updateWeeklyStats();
+            
+            // 重新渲染排班表以检查限制
+            generateScheduleTable();
+            
+            alert('员工限制已更新！');
+        }
+        
+        // 更新日期显示
+        function updateDateDisplay() {
+            const dateStr = formatDate(currentDate);
+            document.getElementById('currentDate').textContent = dateStr;
+            document.getElementById('datePicker').value = currentDate.toISOString().split('T')[0];
+        }
+        
+        // 格式化日期
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekday = weekdays[date.getDay()];
+            
+            return `${year}年${month}月${day}日 ${weekday}`;
+        }
+        
+        // 生成时间槽
+        function generateTimeSlots() {
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const interval = parseInt(document.getElementById('interval').value);
+            
+            // 解析时间字符串
+            const startParts = startTime.split(':');
+            const endParts = endTime.split(':');
+            
+            let startHour = parseInt(startParts[0]);
+            let startMinute = parseInt(startParts[1]);
+            let endHour = parseInt(endParts[0]);
+            let endMinute = parseInt(endParts[1]);
+            
+            // 转换为分钟
+            const startTotalMinutes = startHour * 60 + startMinute;
+            const endTotalMinutes = endHour * 60 + endMinute;
+            
+            // 生成时间槽
+            const timeSlots = [];
+            let currentMinutes = startTotalMinutes;
+            
+            while (currentMinutes < endTotalMinutes) {
+                const nextMinutes = currentMinutes + interval;
+                if (nextMinutes > endTotalMinutes) break;
+                
+                const startTimeStr = formatMinutes(currentMinutes);
+                const endTimeStr = formatMinutes(nextMinutes);
+                
+                timeSlots.push({
+                    start: startTimeStr,
+                    end: endTimeStr,
+                    startMinutes: currentMinutes,
+                    endMinutes: nextMinutes
+                });
+                
+                currentMinutes = nextMinutes;
+            }
+            
+            return timeSlots;
+        }
+        
+        // 将分钟转换为时间字符串
+        function formatMinutes(minutes) {
+            const hour = Math.floor(minutes / 60);
+            const minute = minutes % 60;
+            return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        }
+        
+        // 生成排班表
+        function generateScheduleTable() {
+            const scheduleTable = document.getElementById('scheduleTable');
+            scheduleTable.innerHTML = '';
+            
+            // 获取时间槽
+            const timeSlots = generateTimeSlots();
+            
+            // 创建表头
+            const thead = document.createElement('thead');
+            let headerRow = '<tr><th class="employee-cell">员工 / 时间</th>';
+            
+            timeSlots.forEach(slot => {
+                headerRow += `<th>${slot.start} - ${slot.end}</th>`;
+            });
+            
+            headerRow += '</tr>';
+            thead.innerHTML = headerRow;
+            scheduleTable.appendChild(thead);
+            
+            // 创建表格主体
+            const tbody = document.createElement('tbody');
+            
+            employees.forEach(employee => {
+                const row = document.createElement('tr');
+                let rowHTML = `<td class="employee-cell">${employee.name}</td>`;
+                
+                timeSlots.forEach(slot => {
+                    const slotKey = `${formatDate(currentDate)}_${slot.start}-${slot.end}`;
+                    
+                    // 检查是否已安排此员工在此时间段
+                    const isAssigned = scheduleData[slotKey] && 
+                                      scheduleData[slotKey].includes(employee.id);
+                    
+                    // 获取此时间段的所有已安排员工
+                    const assignedEmployees = scheduleData[slotKey] || [];
+                    
+                    // 检查是否双人排班
+                    const isDouble = assignedEmployees.length > 1;
+                    
+                    // 计算此时段的工作时长（以小时为单位）
+                    const slotDuration = (slot.endMinutes - slot.startMinutes) / 60;
+                    
+                    // 计算今日累计时长
+                    const todayHours = calculateEmployeeHoursForDate(employee.id, currentDate);
+                    
+                    // 计算本周累计时长
+                    const weeklyHours = calculateWeeklyHours(employee.id);
+                    
+                    // 检查是否超限
+                    const isOverLimit = weeklyHours > employee.maxHours;
+                    const isUnderLimit = weeklyHours < employee.minHours;
+                    
+                    // 设置单元格类
+                    let cellClass = 'time-slot';
+                    if (isAssigned) {
+                        cellClass += ' assigned';
+                        if (isDouble) {
+                            cellClass += ' double';
+                        }
+                    }
+                    
+                    if (isOverLimit) {
+                        cellClass += ' warning';
+                    }
+                    
+                    // 获取当前时间段安排人数
+                    const assignedCount = assignedEmployees.length;
+                    
+                    // 获取已安排员工的名字
+                    let assignedNames = '';
+                    if (assignedEmployees.length > 0) {
+                        assignedNames = assignedEmployees.map(id => {
+                            const emp = employees.find(e => e.id === id);
+                            return emp ? emp.name : '';
+                        }).filter(name => name).join('、');
+                    }
+                    
+                    // 存储tooltip数据
+                    const tooltipData = {
+                        employeeName: employee.name,
+                        slotDuration: slotDuration,
+                        todayHours: todayHours,
+                        weeklyHours: weeklyHours,
+                        assignedNames: assignedNames,
+                        isOverLimit: isOverLimit,
+                        isUnderLimit: isUnderLimit,
+                        minHours: employee.minHours,
+                        maxHours: employee.maxHours
+                    };
+                    
+                    // 单元格内容
+                    let cellContent = '';
+                    if (isAssigned) {
+                        cellContent = '<div class="assigned-employee-name">✓</div>';
+                    }
+                    
+                    rowHTML += `
+                        <td class="${cellClass}" 
+                            data-employee="${employee.id}" 
+                            data-slot="${slotKey}"
+                            data-duration="${slotDuration}"
+                            data-tooltip='${JSON.stringify(tooltipData).replace(/'/g, "&#39;")}'>
+                            ${cellContent}
+                            <div class="slot-info">
+                                <span class="employee-count">${assignedCount}/2</span>
+                            </div>
+                        </td>
+                    `;
+                });
+                
+                row.innerHTML = rowHTML;
+                tbody.appendChild(row);
+            });
+            
+            scheduleTable.appendChild(tbody);
+            
+            // 绑定单元格事件
+            bindCellEvents();
+            
+            // 更新周统计
+            updateWeeklyStats();
+        }
+        
+        // 计算员工在指定日期的工作时长
+        function calculateEmployeeHoursForDate(employeeId, date) {
+            const dateStr = formatDate(date);
+            let totalHours = 0;
+            
+            // 遍历所有时间段
+            Object.keys(scheduleData).forEach(slotKey => {
+                if (slotKey.startsWith(dateStr) && scheduleData[slotKey].includes(employeeId)) {
+                    // 从slotKey中提取时间段信息
+                    const timePart = slotKey.split('_')[1];
+                    const [startTime, endTime] = timePart.split('-');
+                    
+                    // 计算时长
+                    const startParts = startTime.split(':');
+                    const endParts = endTime.split(':');
+                    
+                    const startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+                    const endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+                    
+                    totalHours += (endMinutes - startMinutes) / 60;
+                }
+            });
+            
+            return totalHours;
+        }
+        
+        // 计算员工本周累计工作时长
+        function calculateWeeklyHours(employeeId) {
+            // 获取本周的开始日期（假设周一开始）
+            const today = new Date(currentDate);
+            const dayOfWeek = today.getDay();
+            const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            const monday = new Date(today);
+            monday.setDate(today.getDate() + diffToMonday);
+            
+            let totalHours = 0;
+            
+            // 计算从周一到今天的累计时长
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                
+                // 如果日期超过今天，则停止计算
+                if (date > today) break;
+                
+                totalHours += calculateEmployeeHoursForDate(employeeId, date);
+            }
+            
+            // 更新员工对象的周累计时长
+            const employee = employees.find(emp => emp.id === employeeId);
+            if (employee) {
+                employee.weeklyHours = totalHours;
+            }
+            
+            return totalHours;
+        }
+        
+        // 绑定单元格事件
+        function bindCellEvents() {
+            const timeSlots = document.querySelectorAll('.time-slot');
+            const globalTooltip = document.getElementById('globalTooltip');
+            
+            timeSlots.forEach(slot => {
+                // 鼠标进入事件 - 显示tooltip
+                slot.addEventListener('mouseenter', function(e) {
+                    clearTimeout(tooltipHideTimeout);
+                    
+                    const tooltipData = JSON.parse(this.getAttribute('data-tooltip').replace(/&#39;/g, "'"));
+                    showTooltip(tooltipData, e.clientX, e.clientY);
+                });
+                
+                // 鼠标移动事件 - 更新tooltip位置
+                slot.addEventListener('mousemove', function(e) {
+                    if (currentTooltipContent) {
+                        updateTooltipPosition(e.clientX, e.clientY);
+                    }
+                });
+                
+                // 鼠标离开事件 - 延迟隐藏tooltip
+                slot.addEventListener('mouseleave', function() {
+                    tooltipHideTimeout = setTimeout(() => {
+                        hideTooltip();
+                    }, 300);
+                });
+                
+                // 点击事件 - 安排/取消员工
+                slot.addEventListener('click', function(e) {
+                    const employeeId = parseInt(this.getAttribute('data-employee'));
+                    const slotKey = this.getAttribute('data-slot');
+                    
+                    // 获取当前时间段已安排的员工数
+                    const currentAssignments = scheduleData[slotKey] || [];
+                    const isAssigned = currentAssignments.includes(employeeId);
+                    
+                    // 如果已安排，则取消安排
+                    if (isAssigned) {
+                        const index = currentAssignments.indexOf(employeeId);
+                        currentAssignments.splice(index, 1);
+                        
+                        // 如果删除后数组为空，则删除该时间段
+                        if (currentAssignments.length === 0) {
+                            delete scheduleData[slotKey];
+                        } else {
+                            scheduleData[slotKey] = currentAssignments;
+                        }
+                    } 
+                    // 如果未安排，则尝试安排
+                    else {
+                        // 检查是否允许安排（最多2人）
+                        if (currentAssignments.length >= 2) {
+                            alert('此时段最多只能安排2名员工');
+                            return;
+                        }
+                        
+                        // 安排员工
+                        currentAssignments.push(employeeId);
+                        scheduleData[slotKey] = currentAssignments;
+                    }
+                    
+                    // 更新排班表和统计
+                    generateScheduleTable();
+                });
+            });
+            
+            // 当鼠标进入tooltip时，取消隐藏
+            globalTooltip.addEventListener('mouseenter', function() {
+                clearTimeout(tooltipHideTimeout);
+            });
+            
+            // 当鼠标离开tooltip时，隐藏
+            globalTooltip.addEventListener('mouseleave', function() {
+                hideTooltip();
+            });
+        }
+        
+        // 显示tooltip
+        function showTooltip(tooltipData, x, y) {
+            const globalTooltip = document.getElementById('globalTooltip');
+            
+            // 创建tooltip内容
+            let tooltipHTML = `
+                <div class="tooltip-item">
+                    <span class="tooltip-label">员工:</span>
+                    <span class="tooltip-value">${tooltipData.employeeName}</span>
+                </div>
+                <div class="tooltip-item">
+                    <span class="tooltip-label">此时段:</span>
+                    <span class="tooltip-value">${tooltipData.slotDuration} 小时</span>
+                </div>
+                <div class="tooltip-item">
+                    <span class="tooltip-label">今日累计:</span>
+                    <span class="tooltip-value">${tooltipData.todayHours.toFixed(1)} 小时</span>
+                </div>
+                <div class="tooltip-item">
+                    <span class="tooltip-label">本周累计:</span>
+                    <span class="tooltip-value">${tooltipData.weeklyHours.toFixed(1)} 小时</span>
+                </div>
+            `;
+            
+            // 如果已安排员工，显示安排信息
+            if (tooltipData.assignedNames) {
+                tooltipHTML += `
+                    <div class="tooltip-item">
+                        <span class="tooltip-label">已安排:</span>
+                        <span class="tooltip-value">${tooltipData.assignedNames}</span>
+                    </div>
+                `;
+            }
+            
+            // 添加状态信息
+            if (tooltipData.isOverLimit) {
+                tooltipHTML += `
+                    <div class="tooltip-item">
+                        <span class="tooltip-label">状态:</span>
+                        <span class="tooltip-value" style="color: #ff3333;">
+                            已超上限
+                            <i class="fas fa-exclamation-triangle warning-icon"></i>
+                        </span>
+                    </div>
+                `;
+            } else if (tooltipData.isUnderLimit) {
+                tooltipHTML += `
+                    <div class="tooltip-item">
+                        <span class="tooltip-label">状态:</span>
+                        <span class="tooltip-value" style="color: #f39c12;">
+                            未达下限
+                        </span>
+                    </div>
+                `;
+            }
+            
+            currentTooltipContent = tooltipHTML;
+            globalTooltip.innerHTML = `<div class="tooltip right">${tooltipHTML}<div class="tooltip-arrow"></div></div>`;
+            globalTooltip.style.opacity = '1';
+            
+            // 更新位置
+            updateTooltipPosition(x, y);
+        }
+        
+        // 更新tooltip位置
+        function updateTooltipPosition(x, y) {
+            const globalTooltip = document.getElementById('globalTooltip');
+            const tooltipElement = globalTooltip.querySelector('.tooltip');
+            if (!tooltipElement) return;
+            
+            // 获取tooltip尺寸
+            const tooltipRect = tooltipElement.getBoundingClientRect();
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // 默认显示在右侧
+            let positionClass = 'right';
+            let left = x + 15;
+            let top = y - tooltipRect.height / 2;
+            
+            // 检查是否超出右侧边界
+            if (left + tooltipRect.width > windowWidth - 10) {
+                positionClass = 'left';
+                left = x - tooltipRect.width - 15;
+            }
+            
+            // 检查是否超出上边界
+            if (top < 10) {
+                top = 10;
+            }
+            
+            // 检查是否超出下边界
+            if (top + tooltipRect.height > windowHeight - 10) {
+                top = windowHeight - tooltipRect.height - 10;
+            }
+            
+            // 更新tooltip位置和类
+            tooltipElement.className = `tooltip ${positionClass}`;
+            globalTooltip.style.left = `${left}px`;
+            globalTooltip.style.top = `${top}px`;
+        }
+        
+        // 隐藏tooltip
+        function hideTooltip() {
+            const globalTooltip = document.getElementById('globalTooltip');
+            globalTooltip.style.opacity = '0';
+            currentTooltipContent = null;
+        }
+        
+        // 更新周统计数据显示 - 新版本使用网格布局
+        function updateWeeklyStats() {
+            const weeklyStatsGrid = document.getElementById('weeklyStatsGrid');
+            weeklyStatsGrid.innerHTML = '';
+            
+            employees.forEach(employee => {
+                const weeklyHours = calculateWeeklyHours(employee.id);
+                const isUnderMin = weeklyHours < employee.minHours;
+                const isOverMax = weeklyHours > employee.maxHours;
+                
+                // 确定状态和样式
+                let statusText = '';
+                let statusClass = '';
+                
+                if (isOverMax) {
+                    statusText = `已超上限 ${employee.maxHours}小时`;
+                    statusClass = 'over';
+                } else if (isUnderMin) {
+                    statusText = `未达下限 ${employee.minHours}小时`;
+                    statusClass = 'under';
+                } else {
+                    statusText = `正常范围内`;
+                    statusClass = 'normal';
+                }
+                
+                // 计算百分比
+                const percentage = Math.min(100, (weeklyHours / employee.maxHours) * 100);
+                
+                const statItem = document.createElement('div');
+                statItem.className = 'weekly-stat-item';
+                statItem.innerHTML = `
+                    <div class="stat-employee-name">
+                        <div class="stat-color-indicator" style="background-color: ${employee.color}"></div>
+                        ${employee.name}
+                    </div>
+                    <div class="stat-hours">
+                        本周累计: <span class="stat-hours-value">${weeklyHours.toFixed(1)}</span> 小时
+                    </div>
+                    <div class="stat-limit">
+                        限制: ${employee.minHours} - ${employee.maxHours} 小时
+                    </div>
+                    <div class="stat-status ${statusClass}">
+                        ${statusText}
+                    </div>
+                `;
+                
+                weeklyStatsGrid.appendChild(statItem);
+                
+                // 更新侧边栏员工列表中的周累计时长显示
+                const weeklyHoursElement = document.getElementById(`weeklyHours${employee.id}`);
+                if (weeklyHoursElement) {
+                    weeklyHoursElement.textContent = weeklyHours.toFixed(1);
+                }
+            });
+        }
+        
+        // 导出为JSON
+        function exportToJson() {
+            // 准备数据
+            const exportData = {
+                employees: employees.map(emp => ({
+                    name: emp.name,
+                    minHours: emp.minHours,
+                    maxHours: emp.maxHours
+                })),
+                scheduleData: scheduleData,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            // 创建JSON字符串
+            const jsonString = JSON.stringify(exportData, null, 2);
+            
+            // 创建下载链接
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `员工排班数据_${formatDate(currentDate).replace(/[年月日]/g, '-').replace(/\s+/g, '_')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('数据已导出为JSON文件');
+        }
+        
+        // 从JSON导入
+        function importFromJson() {
+            // 创建文件输入元素
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const jsonData = JSON.parse(event.target.result);
+                        
+                        // 验证JSON结构
+                        if (!jsonData.employees || !Array.isArray(jsonData.employees)) {
+                            throw new Error('JSON格式错误：缺少employees数组');
+                        }
+                        
+                        // 处理员工数据
+                        const importedEmployees = jsonData.employees.map((emp, index) => {
+                            // 验证每个员工对象
+                            if (!emp.name || typeof emp.minHours !== 'number' || typeof emp.maxHours !== 'number') {
+                                throw new Error(`第${index + 1}个员工数据格式错误`);
+                            }
+                            
+                            // 分配颜色
+                            const colors = ["#4b6cb7", "#3498db", "#2ecc71", "#9b59b6", "#e74c3c", "#f39c12", "#1abc9c", "#34495e", "#16a085", "#8e44ad"];
+                            const colorIndex = index % colors.length;
+                            
+                            return {
+                                id: index + 1,
+                                name: emp.name,
+                                minHours: emp.minHours,
+                                maxHours: emp.maxHours,
+                                weeklyHours: 0, // 重置累计时长
+                                color: colors[colorIndex]
+                            };
+                        });
+                        
+                        // 更新员工数据
+                        employees = importedEmployees;
+                        
+                        // 如果有排班数据，也导入
+                        if (jsonData.scheduleData && typeof jsonData.scheduleData === 'object') {
+                            // 注意：这里简单地将排班数据合并，实际应用中可能需要更复杂的合并逻辑
+                            scheduleData = { ...scheduleData, ...jsonData.scheduleData };
+                        }
+                        
+                        // 重新渲染界面
+                        renderEmployeeTable();
+                        renderEmployeeList();
+                        generateScheduleTable();
+                        
+                        alert(`成功导入${importedEmployees.length}名员工数据`);
+                    } catch (error) {
+                        alert('导入失败: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            });
+            
+            fileInput.click();
+        }
+        
+        // 绑定事件监听器
+        function bindEvents() {
+            // 前一天按钮
+            document.getElementById('prevDay').addEventListener('click', function() {
+                currentDate.setDate(currentDate.getDate() - 1);
+                updateDateDisplay();
+                generateScheduleTable();
+            });
+            
+            // 后一天按钮
+            document.getElementById('nextDay').addEventListener('click', function() {
+                currentDate.setDate(currentDate.getDate() + 1);
+                updateDateDisplay();
+                generateScheduleTable();
+            });
+            
+            // 日期选择器
+            document.getElementById('datePicker').addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                currentDate = selectedDate;
+                updateDateDisplay();
+                generateScheduleTable();
+            });
+            
+            // 应用配置按钮
+            document.getElementById('applyConfig').addEventListener('click', function() {
+                generateScheduleTable();
+            });
+            
+            // 清除今日排班按钮
+            document.getElementById('clearSchedule').addEventListener('click', function() {
+                if (confirm('确定要清除今日所有排班安排吗？')) {
+                    const dateStr = formatDate(currentDate);
+                    
+                    // 删除今天的所有排班数据
+                    Object.keys(scheduleData).forEach(key => {
+                        if (key.startsWith(dateStr)) {
+                            delete scheduleData[key];
+                        }
+                    });
+                    
+                    generateScheduleTable();
+                }
+            });
+            
+            // 添加员工按钮
+            document.getElementById('addEmployee').addEventListener('click', function() {
+                addNewEmployee();
+            });
+            
+            // 更新员工限制按钮
+            document.getElementById('updateLimits').addEventListener('click', function() {
+                updateEmployeeLimits();
+            });
+            
+            // 导入JSON按钮
+            document.getElementById('importJson').addEventListener('click', function() {
+                importFromJson();
+            });
+            
+            // 导出JSON按钮
+            document.getElementById('exportJson').addEventListener('click', function() {
+                exportToJson();
+            });
+            
+            // 删除员工按钮事件委托
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-employee')) {
+                    const button = e.target.closest('.delete-employee');
+                    const employeeId = parseInt(button.getAttribute('data-id'));
+                    deleteEmployee(employeeId);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
