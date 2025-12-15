@@ -1,0 +1,42 @@
+{
+  "version": "0.0",
+  "createTime": "2025/02/04 20:02:08",
+  "colorConfig": {
+    "minColor": "#f5f5f5",
+    "maxColor": "#ff7b00"
+  },
+  "originWeights": {
+    "ABM": 1,
+    "ADL": 2.1,
+    "AUU": 3.1,
+    "AYQ": 4.1,
+    "BNE": 5.1,
+    "CNJ": 6.1,
+    "CYQ": 7.1,
+    "DMD": 8.1,
+    "DRW": 9.1,
+    "EDR": 10.1,
+    "GTE": 0.1,
+    "HID": 0.1,
+    "IRG": 0.1,
+    "ISA": 0.1,
+    "KID": 0.1,
+    "KWM": 0.1,
+    "LAB": 0.1,
+    "MCY": 0.1,
+    "MEL": 0.1,
+    "MKY": 0.1,
+    "MOV": 0.1,
+    "NTN": 0.1,
+    "ONG": 0.1,
+    "OOL": 0.1,
+    "PER": 0.1,
+    "PPP": 0.1,
+    "QBS": 0.1,
+    "ROK": 11.1,
+    "SYD": 0.1,
+    "TQP": 0.1,
+    "TSV": 0.1,
+    "WEI": 33
+  }
+}
