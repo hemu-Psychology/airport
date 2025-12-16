@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航班热力图分析系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .control-section {
+            background-color: #f9fafc;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #eaeef5;
+        }
+        
+        .weights-section {
+            background-color: #f9fafc;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #eaeef5;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #1a2980;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #eaeef5;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            padding: 14px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #1a2980;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #15206d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(26, 41, 128, 0.2);
+        }
+        
+        .btn-secondary {
+            background-color: #26d0ce;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #21b9b7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(38, 208, 206, 0.2);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #1a2980;
+            border: 1px solid #1a2980;
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(26, 41, 128, 0.05);
+        }
+        
+        .instructions {
+            background-color: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #1a2980;
+            font-size: 0.95rem;
+        }
+        
+        .instructions h3 {
+            color: #1a2980;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f0f7ff, #e6f7f7);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #d1e0ff;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a2980;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        /* 移除表格容器的高度限制和滚动 */
+        .weights-table-container {
+            margin-top: 15px;
+            border: 1px solid #eaeef5;
+            border-radius: 8px;
+            overflow: visible; /* 改为可见 */
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 16px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeef5;
+        }
+        
+        th {
+            background-color: #f0f7ff;
+            font-weight: 600;
+            color: #1a2980;
+            font-size: 0.95rem;
+        }
+        
+        tr:hover {
+            background-color: #f9fafc;
+        }
+        
+        .city-code {
+            font-weight: 700;
+            color: #1a2980;
+            font-size: 1.1rem;
+            min-width: 60px;
+            display: inline-block;
+        }
+        
+        .city-name {
+            color: #555;
+            font-size: 0.95rem;
+        }
+        
+        .weight-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .weight-value {
+            min-width: 70px;
+            text-align: center;
+            font-weight: 600;
+            color: #1a2980;
+            font-size: 1rem;
+            background: #f0f7ff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 2px solid #d1e0ff;
+        }
+        
+        .weight-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #e0e0e0, #1a2980);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .weight-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #26d0ce;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            border: 2px solid white;
+        }
+        
+        .weight-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #1db4b2;
+        }
+        
+        .btn-reset {
+            background: #f0f7ff;
+            border: 2px solid #d1e0ff;
+            color: #1a2980;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-reset:hover {
+            background: #e1eeff;
+            border-color: #1a2980;
+            transform: rotate(-15deg);
+        }
+        
+        .heatmap-section {
+            margin-top: 20px;
+        }
+        
+        .heatmap-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a2980;
+            font-size: 1.5rem;
+        }
+        
+        .heatmap-container {
+            width: 100%;
+            height: 800px; /* 增加高度 */
+            border: 1px solid #eaeef5;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9fafc;
+            margin-bottom: 30px;
+        }
+        
+        .empty-heatmap {
+            text-align: center;
+            color: #666;
+        }
+        
+        .empty-heatmap i {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .empty-heatmap p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .legend-label {
+            margin: 0 15px;
+            font-size: 0.95rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .legend-gradient {
+            width: 300px;
+            height: 25px;
+            background: linear-gradient(to right, #f7fbff, #084594);
+            border-radius: 6px;
+            border: 1px solid #d1e0ff;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .data-status {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .status-success {
+            background-color: #e7f7ef;
+            color: #0a5c36;
+            border-left: 4px solid #0a5c36;
+        }
+        
+        .status-error {
+            background-color: #fde8e8;
+            color: #9b1c1c;
+            border-left: 4px solid #9b1c1c;
+        }
+        
+        .data-summary {
+            background-color: #f0f7ff;
+            padding: 18px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .data-summary h3 {
+            color: #1a2980;
+            margin-bottom: 12px;
+        }
+        
+        .data-summary p {
+            margin-bottom: 8px;
+        }
+        
+        .empty-message {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 30px;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .heatmap-container {
+                height: 600px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .heatmap-container {
+                height: 500px;
+            }
+            
+            .weight-control {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            
+            .weight-slider {
+                order: 2;
+            }
+            
+            .weight-value {
+                order: 1;
+                align-self: flex-start;
+            }
+            
+            .btn-reset {
+                order: 3;
+                align-self: flex-end;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            th, td {
+                padding: 12px 10px;
+            }
+            
+            .city-code, .city-name {
+                font-size: 0.9rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>航班热力图分析系统</h1>
+            <p class="subtitle">可视化分析航班到达数据，基于自定义城市权重生成时间-日期热力图</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="dashboard">
+                <div class="control-section">
+                    <h2 class="section-title"><i class="fas fa-database"></i> 数据控制</h2>
+                    
+                    <div class="control-buttons">
+                        <input type="file" id="fileInput" class="file-input" accept=".json">
+                        <label for="fileInput" class="btn btn-primary file-label">
+                            <i class="fas fa-file-import"></i> 加载航班数据
+                        </label>
+                        
+                        <button id="saveWeights" class="btn btn-secondary">
+                            <i class="fas fa-save"></i> 保存权重配置
+                        </button>
+                        
+                        <button id="loadWeights" class="btn btn-outline">
+                            <i class="fas fa-folder-open"></i> 加载城市权重
+                        </button>
+                        
+                        <button id="resetWeights" class="btn btn-outline">
+                            <i class="fas fa-redo"></i> 重置权重
+                        </button>
+                    </div>
+                    
+                    <div id="dataStatus" class="data-status">
+                        <!-- 状态信息将在这里显示 -->
+                    </div>
+                    
+                    <div class="instructions">
+                        <h3>使用说明</h3>
+                        <ul>
+                            <li>点击"加载航班数据"载入航班信息JSON文件</li>
+                            <li>系统会自动提取城市信息并去重排序</li>
+                            <li>可以调整每个城市的权重值，权重越高在热力图中越突出</li>
+                            <li>点击"保存权重配置"将当前权重保存到本地</li>
+                            <li>每个格子显示该时段所有城市加权航班数的总和</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div id="cityCountValue" class="stat-value">0</div>
+                            <div class="stat-label">城市总数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="flightCountValue" class="stat-value">0</div>
+                            <div class="stat-label">总航班数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div id="avgWeightValue" class="stat-value">0.0</div>
+                            <div class="stat-label">平均权重</div>
+                        </div>
+                    </div>
+                    
+                    <div id="dataSummary" class="data-summary" style="display: none;">
+                        <h3>数据详情</h3>
+                        <p id="dateRange">日期范围: 未加载数据</p>
+                        <p id="timeRange">时间范围: 未加载数据</p>
+                    </div>
+                </div>
+                
+                <div class="weights-section">
+                    <h2 class="section-title"><i class="fas fa-city"></i> 城市权重管理</h2>
+                    
+                    <div class="weights-table-container">
+                        <table id="weightsTable">
+                            <thead>
+                                <tr>
+                                    <th width="20%">城市代码</th>
+                                    <th width="45%">城市名称</th>
+                                    <th width="35%">权重值</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weightsTableBody">
+                                <tr>
+                                    <td colspan="3" class="empty-message">请先加载航班数据以显示城市列表</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="heatmap-section">
+                <h2 class="section-title"><i class="fas fa-fire"></i> 航班热力图</h2>
+                
+                <div class="heatmap-title">航班到达时间分布热力图 (日期 vs 时间)</div>
+                
+                <div id="heatmap" class="heatmap-container">
+                    <div class="empty-heatmap">
+                        <i class="fas fa-chart-heatmap"></i>
+                        <p>请加载航班数据以生成热力图</p>
+                        <p>数据格式应为JSON文件，包含日期、时间和出发城市信息</p>
+                    </div>
+                </div>
+                
+                <div class="legend" style="display: none;">
+                    <span class="legend-label">加权航班数较少</span>
+                    <div class="legend-gradient"></div>
+                    <span class="legend-label">加权航班数较多</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 完整的城市名称映射
+        const cityMap = {
+            'ABM': '巴马加',
+            'ADL': '阿德莱德',
+            'AUU': '奥鲁昆',
+            'AYQ': '乌鲁鲁（艾尔斯岩）',
+            'BNE': '布里斯班',
+            'CNJ': '克隆库里',
+            'CYQ': '彻里当',
+            'DMD': '多恩岛',
+            'DRW': '达尔文',
+            'EDR': '爱德华里弗',
+            'GTE': '格鲁特岛',
+            'HID': '海登岛',
+            'IRG': '洛克汉普顿（艾萨克当）',
+            'ISA': '芒特艾萨',
+            'KID': '基当',
+            'KWM': '凯马',
+            'LAB': '拉贝德',
+            'MCY': '阳光海岸',
+            'MEL': '墨尔本',
+            'MKY': '麦凯',
+            'MOV': '莫兰巴',
+            'NTN': '诺曼顿',
+            'ONG': '莫宁顿岛',
+            'OOL': '黄金海岸',
+            'PER': '珀斯',
+            'PPP': '普罗瑟派恩（圣灵群岛）',
+            'QBS': '未知机场',
+            'ROK': '罗克汉普顿',
+            'SYD': '悉尼',
+            'TQP': '未知机场',
+            'TSV': '汤斯维尔',
+            'WEI': '韦帕'
+        };
+        
+        // 全局变量 - 初始为空
+        let cities = [];
+        let flightData = null;
+        let processedData = null;
+        
+        // DOM元素
+        const fileInput = document.getElementById('fileInput');
+        const saveWeightsBtn = document.getElementById('saveWeights');
+        const loadWeightsBtn = document.getElementById('loadWeights');
+        const resetWeightsBtn = document.getElementById('resetWeights');
+        const weightsTableBody = document.getElementById('weightsTableBody');
+        const avgWeightValue = document.getElementById('avgWeightValue');
+        const cityCountValue = document.getElementById('cityCountValue');
+        const flightCountValue = document.getElementById('flightCountValue');
+        const dataStatus = document.getElementById('dataStatus');
+        const heatmapDiv = document.getElementById('heatmap');
+        const dataSummary = document.getElementById('dataSummary');
+        const dateRange = document.getElementById('dateRange');
+        const timeRange = document.getElementById('timeRange');
+        const legend = document.querySelector('.legend');
+        
+        // 初始化应用 - 不加载示例数据
+        function initApp() {
+            // 清空城市权重表
+            clearWeightsTable();
+            updateStats();
+            showEmptyHeatmap();
+            setupEventListeners();
+        }
+        
+        // 清空权重表格
+        function clearWeightsTable() {
+            weightsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="empty-message">请先加载航班数据以显示城市列表</td>
+                </tr>
+            `;
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            cityCountValue.textContent = cities.length;
+            flightCountValue.textContent = processedData ? processedData.flightArray.length : 0;
+            
+            if (cities.length === 0) {
+                avgWeightValue.textContent = "0.0";
+                return;
+            }
+            
+            const totalWeight = cities.reduce((sum, city) => sum + city.weight, 0);
+            const avgWeight = totalWeight / cities.length;
+            avgWeightValue.textContent = avgWeight.toFixed(1);
+        }
+        
+        // 渲染权重表格
+        function renderWeightsTable() {
+            if (cities.length === 0) {
+                clearWeightsTable();
+                return;
+            }
+            
+            weightsTableBody.innerHTML = '';
+            
+            // 按城市代码排序
+            cities.sort((a, b) => a.code.localeCompare(b.code));
+            
+            cities.forEach(city => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><span class="city-code">${city.code}</span></td>
+                    <td><span class="city-name">${city.name}</span></td>
+                    <td>
+                        <div class="weight-control">
+                            <span class="weight-value">${city.weight.toFixed(1)}</span>
+                            <input type="range" class="weight-slider" min="0.1" max="100" step="0.1" value="${city.weight}" data-code="${city.code}">
+                            <button class="btn-reset" data-code="${city.code}" title="重置权重">
+                                <i class="fas fa-undo-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                weightsTableBody.appendChild(row);
+            });
+            
+            // 为滑块添加事件监听器
+            document.querySelectorAll('.weight-slider').forEach(slider => {
+                slider.addEventListener('input', function() {
+                    const cityCode = this.getAttribute('data-code');
+                    const newWeight = parseFloat(this.value);
+                    updateCityWeight(cityCode, newWeight);
+                    
+                    // 实时更新显示的数值
+                    const weightValueElement = this.parentNode.querySelector('.weight-value');
+                    weightValueElement.textContent = newWeight.toFixed(1);
+                });
+            });
+            
+            // 为重置按钮添加事件监听器
+            document.querySelectorAll('.btn-reset').forEach(button => {
+                button.addEventListener('click', function() {
+                    const cityCode = this.getAttribute('data-code');
+                    resetCityWeight(cityCode);
+                });
+            });
+        }
+        
+        // 更新城市权重
+        function updateCityWeight(cityCode, newWeight) {
+            const city = cities.find(c => c.code === cityCode);
+            if (city) {
+                city.weight = newWeight;
+                updateStats();
+                if (processedData) {
+                    renderHeatmap();
+                }
+            }
+        }
+        
+        // 重置单个城市权重
+        function resetCityWeight(cityCode) {
+            const city = cities.find(c => c.code === cityCode);
+            if (city) {
+                const resetWeight = 1.0; // 默认重置权重
+                city.weight = resetWeight;
+                
+                // 更新滑块和显示值
+                const slider = document.querySelector(`.weight-slider[data-code="${cityCode}"]`);
+                const weightValueElement = document.querySelector(`.weight-slider[data-code="${cityCode}"]`).parentNode.querySelector('.weight-value');
+                
+                if (slider) {
+                    slider.value = resetWeight;
+                }
+                if (weightValueElement) {
+                    weightValueElement.textContent = resetWeight.toFixed(1);
+                }
+                
+                updateStats();
+                if (processedData) {
+                    renderHeatmap();
+                }
+            }
+        }
+        
+        // 显示空热力图
+        function showEmptyHeatmap() {
+            heatmapDiv.innerHTML = `
+                <div class="empty-heatmap">
+                    <i class="fas fa-chart-heatmap"></i>
+                    <p>请加载航班数据以生成热力图</p>
+                    <p>数据格式应为JSON文件，包含日期、时间和出发城市信息</p>
+                </div>
+            `;
+            legend.style.display = 'none';
+        }
+        
+        // 处理航班数据
+        function processFlightData(data) {
+            // 获取航班数组（您的JSON格式有一个固定的键名）
+            let flightArray = [];
+            
+            // 尝试从数据中提取航班数组
+            if (typeof data === 'object' && data !== null) {
+                // 查找包含航班数据的键
+                const dataKeys = Object.keys(data);
+                for (let key of dataKeys) {
+                    if (Array.isArray(data[key])) {
+                        flightArray = data[key];
+                        break;
+                    }
+                }
+            }
+            
+            if (flightArray.length === 0) {
+                showStatus("JSON数据格式不正确，请检查文件格式", "error");
+                return;
+            }
+            
+            // 提取所有唯一的城市代码
+            const uniqueCities = [...new Set(flightArray.map(flight => flight.origin))];
+            
+            // 清空现有城市列表
+            cities = [];
+            
+            // 添加所有城市，设置默认权重为1.0
+            uniqueCities.forEach(cityCode => {
+                cities.push({
+                    code: cityCode,
+                    name: getCityName(cityCode),
+                    weight: 1.0 // 默认权重
+                });
+            });
+            
+            // 更新权重表格
+            renderWeightsTable();
+            updateStats();
+            
+            // 处理航班数据为热力图格式
+            processedData = {
+                flights: [],
+                cities: uniqueCities,
+                flightArray: flightArray,
+                // 提取所有唯一的日期
+                dates: [...new Set(flightArray.map(flight => flight.date))].sort()
+            };
+            
+            // 将航班数据转换为热力图格式
+            flightArray.forEach(flight => {
+                const hour = parseInt(flight.time.split(':')[0]);
+                
+                processedData.flights.push({
+                    city: flight.origin,
+                    date: flight.date,
+                    hour: hour,
+                    count: 1 // 每条记录代表一个航班
+                });
+            });
+            
+            // 更新数据详情
+            updateDataSummary(flightArray);
+            
+            // 显示成功消息
+            showStatus(`成功加载 ${flightArray.length} 条航班记录，来自 ${uniqueCities.length} 个城市`, "success");
+            
+            return processedData;
+        }
+        
+        // 获取城市名称（使用完整的cityMap）
+        function getCityName(cityCode) {
+            return cityMap[cityCode] || cityCode;
+        }
+        
+        // 更新数据详情
+        function updateDataSummary(flightArray) {
+            if (!flightArray || flightArray.length === 0) {
+                dataSummary.style.display = 'none';
+                return;
+            }
+            
+            // 计算日期范围
+            const dates = flightArray.map(f => new Date(f.date));
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            
+            // 计算时间范围
+            const hours = flightArray.map(f => parseInt(f.time.split(':')[0]));
+            const minHour = Math.min(...hours);
+            const maxHour = Math.max(...hours);
+            
+            // 更新详情信息
+            dateRange.textContent = `日期范围: ${formatDate(minDate)} 至 ${formatDate(maxDate)}`;
+            timeRange.textContent = `时间范围: ${minHour}:00 至 ${maxHour}:00`;
+            
+            dataSummary.style.display = 'block';
+        }
+        
+        // 格式化日期
+        function formatDate(date) {
+            return date.toLocaleDateString('zh-CN', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit' 
+            });
+        }
+        
+        // 获取星期几
+        function getDayOfWeek(dateStr) {
+            const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const date = new Date(dateStr);
+            return days[date.getDay()];
+        }
+        
+        // 格式化日期显示（带星期几）
+        function formatDateWithWeek(dateStr) {
+            const date = new Date(dateStr);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const week = getDayOfWeek(dateStr);
+            return `${month}/${day} ${week}`;
+        }
+        
+        // 渲染热力图 - 增加网格高度
+        function renderHeatmap() {
+            if (!processedData || processedData.flights.length === 0) {
+                showEmptyHeatmap();
+                return;
+            }
+            
+            // 清空热力图容器
+            heatmapDiv.innerHTML = '';
+            
+            // 创建SVG容器 - 增加左侧边距以容纳更长的日期标签
+            const margin = { top: 60, right: 40, bottom: 80, left: 160 };
+            const width = heatmapDiv.clientWidth - margin.left - margin.right;
+            const height = 800 - margin.top - margin.bottom; // 增加高度
+            
+            const svg = d3.select("#heatmap")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // 时间范围（小时）- 更多标签
+            const hours = Array.from({length: 24}, (_, i) => i);
+            const hourLabels = hours.map(h => `${h}:00`);
+            
+            // 日期列表（排序）
+            const dates = [...new Set(processedData.flights.map(f => f.date))].sort();
+            
+            // 创建城市权重映射
+            const cityWeights = {};
+            cities.forEach(city => {
+                cityWeights[city.code] = city.weight;
+            });
+            
+            // 计算加权后的航班数
+            const weightedData = {};
+            processedData.flights.forEach(flight => {
+                const key = `${flight.date}-${flight.hour}`;
+                const weight = cityWeights[flight.city] || 1;
+                weightedData[key] = (weightedData[key] || 0) + (flight.count * weight);
+            });
+            
+            // 找到最大值用于颜色比例
+            const maxValue = d3.max(Object.values(weightedData)) || 1;
+            
+            // 创建颜色比例尺
+            const colorScale = d3.scaleSequential()
+                .domain([0, maxValue])
+                .interpolator(d3.interpolateBlues);
+            
+            // 创建X轴比例尺（时间）
+            const xScale = d3.scaleBand()
+                .domain(hours)
+                .range([0, width])
+                .padding(0.05);
+            
+            // 创建Y轴比例尺（日期） - 增加padding使网格更高
+            const yScale = d3.scaleBand()
+                .domain(dates)
+                .range([0, height])
+                .padding(0.1); // 增加padding使网格间距更大
+            
+            // 添加格子 - 网格高度已通过padding增加
+            dates.forEach(date => {
+                hours.forEach(hour => {
+                    const key = `${date}-${hour}`;
+                    const value = weightedData[key] || 0;
+                    
+                    svg.append("rect")
+                        .attr("x", xScale(hour))
+                        .attr("y", yScale(date))
+                        .attr("width", xScale.bandwidth())
+                        .attr("height", yScale.bandwidth())
+                        .attr("fill", colorScale(value))
+                        .attr("stroke", "#fff")
+                        .attr("stroke-width", 1)
+                        .append("title")
+                        .text(`日期: ${date} (${getDayOfWeek(date)})\n时间: ${hour}:00\n加权航班数: ${value.toFixed(1)}`);
+                });
+            });
+            
+            // 添加X轴（时间）- 更多标签
+            const xAxis = svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale)
+                    .tickValues([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 23])
+                    .tickFormat(d => `${d}:00`)
+                );
+            
+            xAxis.selectAll("text")
+                .style("font-size", "12px")
+                .style("font-weight", "500");
+            
+            // 添加Y轴（日期）- 带星期几
+            const yAxis = svg.append("g")
+                .call(d3.axisLeft(yScale)
+                    .tickFormat(d => formatDateWithWeek(d))
+                );
+            
+            yAxis.selectAll("text")
+                .style("font-size", "12px")
+                .style("font-weight", "500")
+                .attr("dx", "-10px");
+            
+            // 添加X轴标签
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 30)
+                .style("text-anchor", "middle")
+                .style("font-size", "14px")
+                .style("font-weight", "600")
+                .style("fill", "#1a2980")
+                .text("到达时间（小时）");
+            
+            // 添加Y轴标签
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 60)
+                .attr("x", -height / 2)
+                .style("text-anchor", "middle")
+                .style("font-size", "14px")
+                .style("font-weight", "600")
+                .style("fill", "#1a2980")
+                .text("日期（月/日 星期）");
+            
+            // 添加主标题
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", -30)
+                .style("text-anchor", "middle")
+                .style("font-size", "18px")
+                .style("font-weight", "700")
+                .style("fill", "#1a2980")
+                .text("航班到达时间分布热力图");
+            
+            // 添加副标题
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", -10)
+                .style("text-anchor", "middle")
+                .style("font-size", "13px")
+                .style("fill", "#666")
+                .text(`基于城市权重计算 | 平均权重: ${avgWeightValue.textContent} | 城市总数: ${cities.length}`);
+            
+            // 显示图例
+            legend.style.display = 'flex';
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 文件上传
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        flightData = data;
+                        
+                        // 处理航班数据
+                        processFlightData(data);
+                        
+                        // 重新渲染热力图
+                        renderHeatmap();
+                    } catch (error) {
+                        showStatus("文件格式错误，请上传有效的JSON文件", "error");
+                        console.error("解析JSON文件时出错:", error);
+                    }
+                };
+                
+                reader.readAsText(file);
+            });
+            
+            // 保存权重配置
+            saveWeightsBtn.addEventListener('click', function() {
+                if (cities.length === 0) {
+                    showStatus("没有城市数据可以保存", "error");
+                    return;
+                }
+                
+                const config = {
+                    cities: cities,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(config, null, 2);
+                const dataUri = "data:application/json;charset=utf-8,"+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `航班权重配置_${new Date().toLocaleDateString()}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showStatus("权重配置已保存到本地", "success");
+            });
+            
+            // 加载权重配置
+            loadWeightsBtn.addEventListener('click', function() {
+                // 创建隐藏的文件输入元素
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.style.display = 'none';
+                
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const config = JSON.parse(event.target.result);
+                            
+                            if (config.cities && Array.isArray(config.cities)) {
+                                // 清空现有城市列表
+                                cities = [];
+                                
+                                // 添加配置中的城市
+                                config.cities.forEach(configCity => {
+                                    cities.push({
+                                        code: configCity.code,
+                                        name: configCity.name || getCityName(configCity.code),
+                                        weight: configCity.weight
+                                    });
+                                });
+                                
+                                // 更新UI
+                                renderWeightsTable();
+                                updateStats();
+                                
+                                // 如果已有航班数据，重新渲染热力图
+                                if (processedData) {
+                                    renderHeatmap();
+                                }
+                                
+                                showStatus("城市权重配置加载成功！", "success");
+                            } else {
+                                showStatus("配置文件格式不正确", "error");
+                            }
+                        } catch (error) {
+                            showStatus("无法加载配置文件", "error");
+                            console.error("解析配置文件时出错:", error);
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                });
+                
+                document.body.appendChild(input);
+                input.click();
+                document.body.removeChild(input);
+            });
+            
+            // 重置权重
+            resetWeightsBtn.addEventListener('click', function() {
+                if (cities.length === 0) {
+                    showStatus("没有城市数据可以重置", "error");
+                    return;
+                }
+                
+                // 将所有城市权重重置为1.0
+                cities.forEach(city => {
+                    city.weight = 1.0;
+                });
+                
+                // 更新UI
+                renderWeightsTable();
+                updateStats();
+                
+                // 如果已有航班数据，重新渲染热力图
+                if (processedData) {
+                    renderHeatmap();
+                }
+                
+                showStatus("所有城市权重已重置为1.0", "success");
+            });
+            
+            // 窗口大小变化时重新渲染热力图
+            window.addEventListener('resize', debounce(function() {
+                if (processedData) {
+                    renderHeatmap();
+                }
+            }, 250));
+        }
+        
+        // 显示状态消息
+        function showStatus(message, type) {
+            dataStatus.textContent = message;
+            dataStatus.className = "data-status";
+            dataStatus.classList.add(`status-${type}`);
+            dataStatus.style.display = "block";
+            
+            // 3秒后隐藏消息
+            setTimeout(() => {
+                dataStatus.style.display = "none";
+            }, 3000);
+        }
+        
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
