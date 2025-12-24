@@ -1,42 +1,110 @@
 {
-  "version": "0.0",
-  "createTime": "2025/02/04 20:02:08",
-  "colorConfig": {
-    "minColor": "#f5f5f5",
-    "maxColor": "#ff7b00"
-  },
-  "originWeights": {
-    "ABM": 1,
-    "ADL": 22,
-    "AUU": 31,
-    "AYQ": 4,
-    "BNE": 5,
-    "CNJ": 6,
-    "CYQ": 7,
-    "DMD": 8,
-    "DRW": 9,
-    "EDR": 10,
-    "GTE": 1,
-    "HID": 1,
-    "IRG": 1,
-    "ISA": 1,
-    "KID": 1,
-    "KWM": 1,
-    "LAB": 1,
-    "MCY": 1,
-    "MEL": 1,
-    "MKY": 1,
-    "MOV": 1,
-    "NTN": 1,
-    "ONG": 1,
-    "OOL": 1,
-    "PER": 1,
-    "PPP": 1,
-    "QBS": 1,
-    "ROK": 11,
-    "SYD": 1,
-    "TQP": 1,
-    "TSV": 1,
-    "WEI": 33
-  }
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "cities": [
+    {
+      "code": "BNE",
+      "name": "布里斯班",
+      "weight": 10.0
+    },
+    {
+      "code": "SYD",
+      "name": "悉尼",
+      "weight": 8.5
+    },
+    {
+      "code": "MEL",
+      "name": "墨尔本",
+      "weight": 7.0
+    },
+    {
+      "code": "ROK",
+      "name": "罗克汉普顿",
+      "weight": 5.5
+    },
+    {
+      "code": "WEI",
+      "name": "韦帕",
+      "weight": 3.0
+    },
+    {
+      "code": "MCY",
+      "name": "阳光海岸",
+      "weight": 4.0
+    },
+    {
+      "code": "TSV",
+      "name": "汤斯维尔",
+      "weight": 6.0
+    },
+    {
+      "code": "OOL",
+      "name": "黄金海岸",
+      "weight": 4.5
+    },
+    {
+      "code": "DRW",
+      "name": "达尔文",
+      "weight": 2.5
+    },
+    {
+      "code": "ADL",
+      "name": "阿德莱德",
+      "weight": 3.5
+    },
+    {
+      "code": "PER",
+      "name": "珀斯",
+      "weight": 2.0
+    },
+    {
+      "code": "PPP",
+      "name": "普罗瑟派恩（圣灵群岛）",
+      "weight": 4.0
+    },
+    {
+      "code": "AYQ",
+      "name": "乌鲁鲁（艾尔斯岩）",
+      "weight": 1.5
+    },
+    {
+      "code": "KID",
+      "name": "基当",
+      "weight": 1.0
+    },
+    {
+      "code": "KWM",
+      "name": "凯马",
+      "weight": 1.0
+    },
+    {
+      "code": "LAB",
+      "name": "拉贝德",
+      "weight": 1.0
+    },
+    {
+      "code": "MOV",
+      "name": "莫兰巴",
+      "weight": 1.0
+    },
+    {
+      "code": "NTN",
+      "name": "诺曼顿",
+      "weight": 1.0
+    },
+    {
+      "code": "ONG",
+      "name": "莫宁顿岛",
+      "weight": 1.0
+    },
+    {
+      "code": "QBS",
+      "name": "未知机场",
+      "weight": 1.0
+    },
+    {
+      "code": "TQP",
+      "name": "未知机场",
+      "weight": 1.0
+    }
+  ]
 }
